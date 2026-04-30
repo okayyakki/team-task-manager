@@ -239,17 +239,22 @@ async function loadDashboard() {
 // ===== PROJECTS =====
 async function loadProjects() {
   showProjectsList();
+
   const grid = document.getElementById('projects-grid');
+
   grid.innerHTML = `
-    <div class="project-card new-project-card" onclick="openModal('create-project-modal')">
-      <div class="new-project-icon">+</div>
-      <div class="new-project-text">New Project</div>
+    <div class="loading">
+      <div class="spinner"></div> Loading projects...
     </div>
-    <div class="loading"><div class="spinner"></div> Loading projects...</div>
   `;
 
   try {
     const data = await api('/projects');
+
+    console.log("PROJECT API RESPONSE:", data); // 🔥 DEBUG
+
+    const projects = data.projects || [];
+
     grid.innerHTML = `
       <div class="project-card new-project-card" onclick="openModal('create-project-modal')">
         <div class="new-project-icon">+</div>
@@ -257,10 +262,43 @@ async function loadProjects() {
       </div>
     `;
 
-    if (data.projects.length === 0) {
-      grid.innerHTML += '<p class="empty-state" style="grid-column:1/-1;padding:40px">No projects yet. Create your first project!</p>';
+    if (!Array.isArray(projects) || projects.length === 0) {
+      grid.innerHTML += `
+        <p class="empty-state" style="grid-column:1/-1;padding:40px">
+          No projects yet. Create your first project!
+        </p>
+      `;
       return;
     }
+
+    projects.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'project-card';
+
+      card.onclick = () => openProjectDetail(p._id);
+
+      card.innerHTML = `
+        <div class="project-card-name">${escHtml(p.name || '')}</div>
+        <div class="project-card-desc">${escHtml(p.description || 'No description')}</div>
+        <div class="project-card-meta">
+          <span>👥 ${(p.members || []).length} members</span>
+          <span class="role-badge">${p.myRole || ''}</span>
+        </div>
+      `;
+
+      grid.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error("PROJECT LOAD ERROR:", err);
+
+    grid.innerHTML = `
+      <p class="empty-state" style="color:red">
+        Failed to load projects: ${err.message}
+      </p>
+    `;
+  }
+}
 
     data.projects.forEach(p => {
       const card = document.createElement('div');
