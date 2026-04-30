@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TeamTask – Team Task Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ===== AUTH SECTION ===== -->
+  <div id="auth-section" class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">TeamTask</span>
+      </div>
+      <p class="auth-tagline">Collaborate. Organize. Deliver.</p>
+
+      <!-- Tab Switcher -->
+      <div class="auth-tabs">
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Login</button>
+        <button class="tab-btn" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" required />
+        </div>
+        <div id="login-error" class="form-error hidden"></div>
+        <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+          <span>Login</span>
+        </button>
+        <p class="auth-switch">Don't have an account? <a href="#" onclick="switchTab('signup')">Sign up</a></p>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signup-form" class="auth-form hidden" onsubmit="handleSignup(event)">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="signup-name" placeholder="John Doe" required />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="signup-email" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="signup-password" placeholder="Min. 6 characters" required />
+        </div>
+        <div id="signup-error" class="form-error hidden"></div>
+        <button type="submit" class="btn btn-primary btn-full" id="signup-btn">
+          <span>Create Account</span>
+        </button>
+        <p class="auth-switch">Already have an account? <a href="#" onclick="switchTab('login')">Login</a></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== APP SECTION ===== -->
+  <div id="app-section" class="hidden">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">TeamTask</span>
+        <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+          <span class="nav-icon">⊞</span> Dashboard
+        </a>
+        <a href="#" class="nav-item" onclick="showPage('projects')" id="nav-projects">
+          <span class="nav-icon">◫</span> Projects
+        </a>
+        <a href="#" class="nav-item" onclick="showPage('tasks')" id="nav-tasks">
+          <span class="nav-icon">✓</span> My Tasks
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="sidebar-avatar">U</div>
+          <div>
+            <div class="user-name" id="sidebar-name">User</div>
+            <div class="user-email" id="sidebar-email">user@email.com</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <h1 class="page-title" id="page-title">Dashboard</h1>
+        <div class="topbar-actions" id="topbar-actions"></div>
+      </header>
+
+      <!-- Pages -->
+      <div class="page-content">
+
+        <!-- DASHBOARD PAGE -->
+        <div id="page-dashboard" class="page active">
+          <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon projects-icon">◫</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-projects">0</div>
+                <div class="stat-label">Projects</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon tasks-icon">✓</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-total">0</div>
+                <div class="stat-label">Total Tasks</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon progress-icon">◑</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-inprogress">0</div>
+                <div class="stat-label">In Progress</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon overdue-icon">⚠</div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-overdue">0</div>
+                <div class="stat-label">Overdue</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-header">
+                <h3>Tasks by Status</h3>
+              </div>
+              <div class="status-bars" id="status-bars">
+                <div class="status-bar-item">
+                  <div class="status-bar-label"><span class="dot todo"></span>To Do <span id="bar-todo">0</span></div>
+                  <div class="bar-track"><div class="bar-fill todo-fill" id="fill-todo"></div></div>
+                </div>
+                <div class="status-bar-item">
+                  <div class="status-bar-label"><span class="dot inprogress"></span>In Progress <span id="bar-inprogress">0</span></div>
+                  <div class="bar-track"><div class="bar-fill inprogress-fill" id="fill-inprogress"></div></div>
+                </div>
+                <div class="status-bar-item">
+                  <div class="status-bar-label"><span class="dot done"></span>Done <span id="bar-done">0</span></div>
+                  <div class="bar-track"><div class="bar-fill done-fill" id="fill-done"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3>Overdue Tasks</h3>
+              </div>
+              <div id="overdue-list" class="task-mini-list">
+                <p class="empty-state">No overdue tasks 🎉</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3>Recent Tasks</h3>
+              </div>
+              <div id="recent-tasks-list" class="task-mini-list">
+                <p class="empty-state">No tasks yet</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3>Tasks per Member</h3>
+              </div>
+              <div id="tasks-per-user" class="user-task-list">
+                <p class="empty-state">No data available</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROJECTS PAGE -->
+        <div id="page-projects" class="page hidden">
+          <div id="projects-list-view">
+            <div class="projects-grid" id="projects-grid">
+              <div class="project-card new-project-card" onclick="openModal('create-project-modal')">
+                <div class="new-project-icon">+</div>
+                <div class="new-project-text">New Project</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project Detail View -->
+          <div id="project-detail-view" class="hidden">
+            <button class="btn btn-ghost btn-sm back-btn" onclick="showProjectsList()">← Back to Projects</button>
+            <div class="project-detail-header">
+              <div>
+                <h2 id="detail-project-name">Project Name</h2>
+                <p id="detail-project-desc" class="text-muted"></p>
+              </div>
+              <div class="project-detail-actions" id="project-detail-actions"></div>
+            </div>
+
+            <div class="project-tabs">
+              <button class="ptab active" onclick="switchProjectTab('ptab-tasks')" id="ptab-tasks-btn">Tasks</button>
+              <button class="ptab" onclick="switchProjectTab('ptab-members')" id="ptab-members-btn">Members</button>
+            </div>
+
+            <div id="ptab-tasks" class="ptab-content">
+              <div class="task-filters">
+                <select id="filter-status" onchange="filterTasks()" class="filter-select">
+                  <option value="">All Status</option>
+                  <option value="To Do">To Do</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Done">Done</option>
+                </select>
+                <select id="filter-priority" onchange="filterTasks()" class="filter-select">
+                  <option value="">All Priority</option>
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+              </div>
+              <div id="tasks-container" class="tasks-board">
+                <div class="board-col">
+                  <div class="board-col-header todo-header">To Do <span class="col-count" id="col-todo-count">0</span></div>
+                  <div class="board-col-body" id="col-todo"></div>
+                </div>
+                <div class="board-col">
+                  <div class="board-col-header inprogress-header">In Progress <span class="col-count" id="col-inprogress-count">0</span></div>
+                  <div class="board-col-body" id="col-inprogress"></div>
+                </div>
+                <div class="board-col">
+                  <div class="board-col-header done-header">Done <span class="col-count" id="col-done-count">0</span></div>
+                  <div class="board-col-body" id="col-done"></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="ptab-members" class="ptab-content hidden">
+              <div id="members-list" class="members-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MY TASKS PAGE -->
+        <div id="page-tasks" class="page hidden">
+          <div class="my-tasks-filters">
+            <select id="my-task-status" onchange="loadMyTasks()" class="filter-select">
+              <option value="">All Status</option>
+              <option value="To Do">To Do</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
+            <select id="my-task-priority" onchange="loadMyTasks()" class="filter-select">
+              <option value="">All Priority</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <div id="my-tasks-list" class="my-tasks-list"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ===== MODALS ===== -->
+
+  <!-- Create Project Modal -->
+  <div id="create-project-modal" class="modal-overlay hidden" onclick="closeModalOutside(event, 'create-project-modal')">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Create New Project</h3>
+        <button class="modal-close" onclick="closeModal('create-project-modal')">✕</button>
+      </div>
+      <form onsubmit="handleCreateProject(event)">
+        <div class="form-group">
+          <label>Project Name *</label>
+          <input type="text" id="new-project-name" placeholder="e.g. Website Redesign" required />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="new-project-desc" placeholder="Brief description..." rows="3"></textarea>
+        </div>
+        <div id="create-project-error" class="form-error hidden"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('create-project-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="create-project-btn">Create Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Create Task Modal -->
+  <div id="create-task-modal" class="modal-overlay hidden" onclick="closeModalOutside(event, 'create-task-modal')">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Create New Task</h3>
+        <button class="modal-close" onclick="closeModal('create-task-modal')">✕</button>
+      </div>
+      <form onsubmit="handleCreateTask(event)">
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" id="new-task-title" placeholder="Task title" required />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="new-task-desc" placeholder="Task details..." rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Priority</label>
+            <select id="new-task-priority">
+              <option value="Low">Low</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="new-task-status">
+              <option value="To Do" selected>To Do</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Due Date</label>
+            <input type="date" id="new-task-due" />
+          </div>
+          <div class="form-group">
+            <label>Assign To</label>
+            <select id="new-task-assign">
+              <option value="">Unassigned</option>
+            </select>
+          </div>
+        </div>
+        <div id="create-task-error" class="form-error hidden"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('create-task-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="create-task-btn">Create Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Task Modal -->
+  <div id="edit-task-modal" class="modal-overlay hidden" onclick="closeModalOutside(event, 'edit-task-modal')">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Edit Task</h3>
+        <button class="modal-close" onclick="closeModal('edit-task-modal')">✕</button>
+      </div>
+      <form onsubmit="handleEditTask(event)">
+        <input type="hidden" id="edit-task-id" />
+        <div class="form-group" id="edit-title-group">
+          <label>Title *</label>
+          <input type="text" id="edit-task-title" placeholder="Task title" required />
+        </div>
+        <div class="form-group" id="edit-desc-group">
+          <label>Description</label>
+          <textarea id="edit-task-desc" rows="3"></textarea>
+        </div>
+        <div class="form-row" id="edit-admin-row">
+          <div class="form-group">
+            <label>Priority</label>
+            <select id="edit-task-priority">
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Assign To</label>
+            <select id="edit-task-assign">
+              <option value="">Unassigned</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" id="edit-due-group">
+          <label>Due Date</label>
+          <input type="date" id="edit-task-due" />
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="edit-task-status">
+            <option value="To Do">To Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
+        <div id="edit-task-error" class="form-error hidden"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('edit-task-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Member Modal -->
+  <div id="add-member-modal" class="modal-overlay hidden" onclick="closeModalOutside(event, 'add-member-modal')">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Add Member</h3>
+        <button class="modal-close" onclick="closeModal('add-member-modal')">✕</button>
+      </div>
+      <form onsubmit="handleAddMember(event)">
+        <div class="form-group">
+          <label>Member Email *</label>
+          <input type="email" id="member-email" placeholder="member@example.com" required />
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="member-role">
+            <option value="Member">Member</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+        <div id="add-member-error" class="form-error hidden"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('add-member-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Member</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
