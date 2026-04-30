@@ -8,44 +8,32 @@ dotenv.config();
 
 const app = express();
 
-// CORS configuration
-const allowedOrigins = [
-process.env.FRONTEND_URL,
-'https://team-task-manager-production-ef77.up.railway.app',
-'https://team-task-manager-production-207c.up.railway.app',
-'http://localhost:3000',
-'http://localhost:5500',
-'http://127.0.0.1:5500'
-].filter(Boolean);
 
+// ✅ FIXED CORS (important)
 app.use(cors({
-origin: function (origin, callback) {
-if (!origin) return callback(null, true);
-if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
-callback(null, true);
-} else {
-callback(new Error('Not allowed by CORS'));
-}
-},
-credentials: true
+  origin: true,   // allow same-origin (Railway frontend + backend)
+  credentials: true
 }));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+
+// ===== ROUTES =====
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 
-// Health check
+
+// ===== HEALTH CHECK =====
 app.get('/api/health', (req, res) => {
-res.json({ status: 'OK', message: 'Team Task Manager API is running' });
+  res.json({ status: 'OK', message: 'Team Task Manager API is running' });
 });
 
-// ✅ FIXED: Serve frontend correctly
-// ✅ Serve frontend correctly
+
+// ===== SERVE FRONTEND =====
 if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.join(__dirname, 'frontend');
 
@@ -56,26 +44,28 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Global error handler
+
+// ===== ERROR HANDLER =====
 app.use((err, req, res, next) => {
-console.error(err.stack);
-res.status(err.status || 500).json({
-success: false,
-message: err.message || 'Internal Server Error'
-});
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error'
+  });
 });
 
-// Connect to MongoDB and start server
+
+// ===== DB + SERVER =====
 const PORT = process.env.PORT || 5000;
 
 mongoose.connect(process.env.MONGO_URI)
-.then(() => {
-console.log('✅ MongoDB connected');
-app.listen(PORT, () => {
-console.log(`🚀 Server running on port ${PORT}`);
-});
-})
-.catch(err => {
-console.error('❌ MongoDB connection error:', err.message);
-process.exit(1);
-});
+  .then(() => {
+    console.log('✅ MongoDB connected');
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('❌ MongoDB connection error:', err.message);
+    process.exit(1);
+  });
