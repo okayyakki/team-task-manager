@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # TeamTask – Team Task Manager
 
 A full-stack collaborative task management web application built with Node.js, Express, MongoDB, and vanilla HTML/CSS/JS.
@@ -154,3 +155,7 @@ const API_BASE = 'https://your-backend.up.railway.app/api';
 | `JWT_SECRET` | Secret for JWT signing | `abc123...` |
 | `NODE_ENV` | Environment | `production` |
 | `FRONTEND_URL` | Frontend URL for CORS | `https://...railway.app` |
+=======
+# team-task-manager
+Full-stack Team Task Manager with role-based access (Admin/Member), project management, and task tracking built using MERN stack.
+>>>>>>> fef39af0939fd6a332a819f9d8142d266a4ec163
