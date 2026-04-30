@@ -45,7 +45,7 @@ res.json({ status: 'OK', message: 'Team Task Manager API is running' });
 });
 
 // ✅ FIXED: Serve frontend correctly
-i// ✅ Serve frontend correctly
+// ✅ Serve frontend correctly
 if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.join(__dirname, 'frontend');
 
